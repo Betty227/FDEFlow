@@ -154,8 +154,11 @@ Use a dedicated test-only wallet. The private key must be the 32-byte hexadecima
 ## Deploy and verify
 
 ```bash
+npm run preflight:sepolia
 npm run deploy:sepolia
 ```
+
+The preflight command checks that the endpoint reports Sepolia chain ID `11155111`, the private key has the required format, the derived wallet has test ETH, and an Etherscan key is present. It prints the public wallet address but never the key.
 
 The script prints the address and transaction hash and creates `deployment/sepolia-deployment.json` containing:
 

@@ -9,9 +9,10 @@
     "coverage": "hardhat coverage",
     "security": ".venv/bin/slither . --exclude-dependencies --filter-paths 'contracts/test|node_modules'",
     "demo:local": "hardhat run scripts/demo-local.js",
-    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
-    "verify:sepolia": "hardhat run scripts/verify.js --network sepolia",
-    "interact:sepolia": "hardhat run scripts/interact.js --network sepolia",
+    "preflight:sepolia": "node scripts/preflight.js",
+    "deploy:sepolia": "npm run preflight:sepolia && hardhat run scripts/deploy.js --network sepolia",
+    "verify:sepolia": "npm run preflight:sepolia && hardhat run scripts/verify.js --network sepolia",
+    "interact:sepolia": "npm run preflight:sepolia && hardhat run scripts/interact.js --network sepolia",
     "check": "npm run compile && npm test"
   },
   "devDependencies": {
