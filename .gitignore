@@ -1,7 +1,10 @@
 node_modules/
+.venv/
 artifacts/
 cache/
 coverage/
+coverage.json
+.nyc_output/
 typechain-types/
 
 .env

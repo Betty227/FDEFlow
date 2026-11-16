@@ -1,0 +1,36 @@
+
+> fdeflow@1.0.0 security
+> .venv/bin/slither . --exclude-dependencies --filter-paths 'contracts/test|node_modules'
+
+/Users/betty/Desktop/课程资料/5760-blockchain/FDEFlow/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+'npx hardhat clean' running (wd: /Users/betty/Desktop/课程资料/5760-blockchain/FDEFlow)
+'npx hardhat clean --global' running (wd: /Users/betty/Desktop/课程资料/5760-blockchain/FDEFlow)
+'npx hardhat compile --force' running (wd: /Users/betty/Desktop/课程资料/5760-blockchain/FDEFlow)
+INFO:Detectors:
+Detector: timestamp
+FDEFlowEscrow.createProject(address,address,bytes32,bytes32,uint64,uint64) (contracts/FDEFlowEscrow.sol#136-183) uses timestamp for comparisons
+	Dangerous comparisons:
+	- deliveryDeadline <= block.timestamp (contracts/FDEFlowEscrow.sol#148)
+FDEFlowEscrow.submitDelivery(uint256,bytes32,bytes32) (contracts/FDEFlowEscrow.sol#186-213) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > project.deliveryDeadline (contracts/FDEFlowEscrow.sol#192)
+FDEFlowEscrow.proposeExtension(uint256,uint64) (contracts/FDEFlowEscrow.sol#249-266) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > currentDeadline || newDeadline <= currentDeadline || newDeadline <= block.timestamp (contracts/FDEFlowEscrow.sol#254)
+FDEFlowEscrow.approveExtension(uint256) (contracts/FDEFlowEscrow.sol#269-293) uses timestamp for comparisons
+	Dangerous comparisons:
+	- proposal.newDeadline <= block.timestamp (contracts/FDEFlowEscrow.sol#276)
+FDEFlowEscrow._requireNotPast(uint64) (contracts/FDEFlowEscrow.sol#437-439) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > deadline (contracts/FDEFlowEscrow.sol#438)
+FDEFlowEscrow._requirePast(uint64) (contracts/FDEFlowEscrow.sol#441-443) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp <= deadline (contracts/FDEFlowEscrow.sol#442)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: low-level-calls
+Low level call in FDEFlowEscrow.withdraw() (contracts/FDEFlowEscrow.sol#370-380):
+	- (success,None) = address(msg.sender).call{value: amount}() (contracts/FDEFlowEscrow.sol#376)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+INFO:Slither:. analyzed (7 contracts with 100 detectors), 7 result(s) found

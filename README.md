@@ -2,146 +2,219 @@
 
 **A Smart Contract Escrow for AI Workflow Delivery and Client Acceptance**
 
-FDEFlow is a CSIT5760 individual project by **HU Wenqi**. It will implement a Solidity escrow for AI workflow delivery projects. A client deposits Sepolia test ETH, a provider submits tamper-evident delivery hashes, and a mutually nominated arbiter resolves disputed outcomes. The contract will enforce role permissions, deadlines, state transitions, and safe settlement while keeping sensitive AI artefacts and business data off-chain.
+FDEFlow is a CSIT5760 individual project by **HU Wenqi**. It implements a role-controlled Solidity escrow for a single-milestone AI workflow engagement. A client deposits Sepolia test ETH, a provider records delivery and evidence hashes, and a nominated arbiter resolves disputes using any provider share from 0 to 10,000 basis points. Sensitive prompts, files, business data, and complete evidence remain off-chain.
 
-## Project status
+The student ID is intentionally omitted from this public repository. It is included in the course submission package and final report.
 
-The project is currently at the proposal and design stage. Contract code, tests, deployment records, and verified Etherscan links will be added during implementation. No mainnet or real-money use is intended.
+> Educational prototype only. Do not use it with real funds or confidential information.
 
 ## Why blockchain
 
-FDEFlow targets engagements involving independent client, provider, and arbiter organisations. A shared smart contract provides independently verifiable project states, timestamps, evidence hashes, and settlement rules without allowing either commercial party to rewrite the audit trail. The contract does not judge AI-workflow quality; evidence review and responsibility decisions remain off-chain.
+The intended scenario involves independent client, provider, and arbiter organisations. The contract gives them a shared and tamper-resistant record of funding, versions, deadlines, decisions, and settlement without allowing either commercial party to rewrite the audit history. Blockchain does not determine whether an AI workflow is good; the contract enforces permissions, timing, and settlement after human review.
 
-## Roles
+## Implemented roles
 
-| Role | Planned permissions |
+| Role | Permissions |
 | --- | --- |
-| Client | Create and fund a project, review a delivery, approve or reject it, request or approve an extension, and open a dispute where permitted. |
-| Provider | Submit delivery and evidence hashes, resubmit after rejection, request or approve an extension, and open a review-overdue dispute. |
-| Arbiter | Resolve a disputed project using an evidence-based provider share from 0 to 10,000 basis points. |
+| Client | Create and fund a project, approve or reject a delivery, propose or approve an extension, mark delivery overdue, open the corresponding dispute, and withdraw refunds. |
+| Provider | Submit one delivery and one permitted resubmission, propose or approve an extension, mark review overdue, dispute rejection/review delay, and withdraw payment. |
+| Arbiter | Resolve a disputed project with a provider share from 0 to 10,000 basis points. |
 
-## Planned lifecycle
+Roles are stored per project. There is no global administrator who can redirect escrowed funds.
+
+## Lifecycle
 
 ```text
-Funded -> Submitted -> Accepted -> Resolved
-   |           |
-   |           +-> Rejected -> resubmission
-   |           +-> ReviewOverdue -> Disputed
-   +-> DeliveryOverdue -> Disputed
+Funded ──submit──> Submitted ──approve──> Resolved
+   │                  │
+   │                  ├─reject first delivery─> Rejected ──resubmit─> Submitted
+   │                  └─review timeout────────> ReviewOverdue ─┐
+   └─delivery timeout─────────────────────────> DeliveryOverdue ├─> Disputed
+                         Rejected ──provider dispute─────────────┘
 
-Disputed -> Resolved
-            |- full client refund
-            |- partial settlement
-            `- full provider payment
+Disputed ──arbiter allocation──> Resolved
+                                 ├─ 0% provider: full client refund
+                                 ├─ 1–99.99%: partial settlement
+                                 └─ 100% provider: full provider payment
 ```
 
-A deadline extension takes effect only after the other commercial party approves it. Resolution credits withdrawable balances rather than pushing Ether directly to recipients.
+The client may dispute an unacceptable second submission directly. Deadline extensions are pending proposals rather than lifecycle states and take effect only when the other commercial party approves them.
 
-## Planned smart contract capabilities
+## Security design
 
-- Create and fund an escrow project with named client, provider, and arbiter addresses.
-- Anchor scope, acceptance criteria, delivery, rejection, and dispute-evidence hashes.
-- Enforce delivery and review deadlines and valid lifecycle transitions.
-- Require mutual approval for deadline extensions.
-- Resolve disputes with a validated `providerShareBps` value between 0 and 10,000.
-- Protect withdrawals using checks-effects-interactions, pull payments, and `ReentrancyGuard`.
-- Emit events for significant actions and preserve an auditable project history.
+- Per-project caller checks enforce client, provider, and arbiter permissions.
+- Explicit enum checks prevent state skipping, duplicate settlement, and post-resolution actions.
+- Delivery and review boundaries are defined as allowed at the deadline and overdue only after it.
+- Pull payments isolate recipients that reject Ether.
+- Checks-effects-interactions and OpenZeppelin `ReentrancyGuard` protect withdrawals.
+- OpenZeppelin `Math.mulDiv` calculates the provider share; the exact rounding remainder goes to the client.
+- Aggregate `totalEscrowed` and `totalPendingWithdrawals` values support accounting checks.
+- Only non-sensitive hashes and metadata are stored on-chain.
 
-## On-chain and off-chain data
+See [`audit/SECURITY_REVIEW.md`](audit/SECURITY_REVIEW.md) for Slither findings, manual interpretation, remediation status, and residual risks.
 
-On-chain data will be limited to party addresses, non-sensitive hashes, timestamps, escrow amounts, state, extension proposals, and settlement allocation. AI workflows, prompts, business data, source files, test reports, videos, messages, and complete dispute evidence will remain off-chain.
+## Technology and exact versions
 
-## Technology stack
-
-| Technology | Planned use |
+| Component | Version / setting |
 | --- | --- |
-| Solidity 0.8.24 | Smart contract implementation |
-| Hardhat 2.x | Compilation, automated testing, and deployment |
-| ethers 6.x | Contract deployment and scripted interaction |
-| OpenZeppelin Contracts 5.x | `ReentrancyGuard` and reviewed utilities |
-| Sepolia | Public Ethereum test network |
-| Etherscan | Source-code verification and transaction evidence |
-| Slither | Static security analysis |
+| Solidity | 0.8.24 |
+| Hardhat | 2.28.0 |
+| Hardhat Toolbox | 6.1.0 |
+| OpenZeppelin Contracts | 5.4.0 |
+| solidity-coverage | 0.8.16 |
+| Slither | 0.11.4 |
+| Optimizer | enabled, 200 runs |
+| EVM target | Paris |
+| Public network | Sepolia, chain ID 11155111 |
 
-Exact installed versions will be recorded after the project dependencies are initialized.
+Use an even-numbered Node.js LTS release supported by Hardhat (Node.js 22 LTS is recommended). Node.js 25 produces a Hardhat support warning and should not be used for the final reproducibility run.
+
+## Repository structure
+
+```text
+contracts/FDEFlowEscrow.sol                       application contract
+contracts/test/MaliciousWithdrawalReceiver.sol  security test helper
+test/FDEFlowEscrow.test.js                       automated test suite
+scripts/deploy.js                                deployment and metadata capture
+scripts/verify.js                                Etherscan verification
+scripts/interact.js                              deployed-state reader
+scripts/demo-local.js                            complete local happy-path demo
+deployment/                                     generated public deployment records
+audit/                                          raw and interpreted security evidence
+```
+
+Generated `node_modules`, build artefacts, cache, coverage HTML, virtual environments, and secrets are ignored.
 
 ## Prerequisites
 
-The completed project will require:
+- Node.js 22 LTS and npm;
+- Python 3 and a project virtual environment for Slither;
+- a dedicated Sepolia wallet with a small amount of test ETH;
+- a Sepolia RPC endpoint; and
+- an Etherscan API key for verification.
 
-- Node.js and npm;
-- a Sepolia-compatible wallet;
-- Sepolia test ETH;
-- an RPC endpoint for deployment; and
-- an Etherscan API key for automated verification, if used.
+Never commit a wallet seed phrase, private key, RPC credential, API key, or populated `.env` file.
 
-Credentials must be stored locally in an untracked `.env` file and must never be committed.
-
-## Installation, compilation, and testing
-
-The repository does not yet contain the implementation. After the Hardhat project is initialized, this section will provide reproducible commands similar to:
+## Install
 
 ```bash
-npm install
-npx hardhat compile
-npx hardhat test
+git clone https://github.com/Betty227/FDEFlow.git
+cd FDEFlow
+npm ci
+python3 -m venv .venv
+.venv/bin/pip install slither-analyzer==0.11.4
 ```
 
-The final test suite will cover successful workflows, unauthorized calls, invalid inputs, repeated operations, deadline boundaries, state transitions, events, balance conservation, partial settlements, and malicious withdrawal receivers.
+`package-lock.json` locks JavaScript dependencies. Slither is installed locally in `.venv`, which is ignored by Git.
 
-## Deployment and verification
+## Compile and test
 
-Deployment scripts and exact commands will be added under `scripts/` or `deployment/`. The final documentation will record:
+```bash
+npm run compile
+npm test
+npm run coverage
+```
 
-- network name and chain ID;
+The current suite contains positive, negative, authorization, state, event, deadline-boundary, allocation, rounding, denial-of-service, and reentrancy cases. The latest local run passes 33 tests. Coverage results are written to `coverage/`; the concise console record is retained in `audit/coverage-output.txt`.
+
+Run the complete local success path with:
+
+```bash
+npm run demo:local
+```
+
+## Security analysis
+
+```bash
+npm run security
+npm audit --omit=dev
+```
+
+Slither output is saved in `audit/slither-output.txt`. Tool output must be interpreted; a raw report alone is not a security conclusion. The current application findings are intentional timestamp comparisons and the controlled low-level call used by the pull-payment withdrawal.
+
+## Configure Sepolia
+
+Copy the example without committing the result:
+
+```bash
+cp .env.example .env
+```
+
+Populate these local values:
+
+```dotenv
+SEPOLIA_RPC_URL=...
+DEPLOYER_PRIVATE_KEY=...
+ETHERSCAN_API_KEY=...
+FDEFLOW_CONTRACT_ADDRESS=...
+```
+
+Use a dedicated test-only wallet. The private key must be the 32-byte hexadecimal key expected by Hardhat and must never be shared or submitted.
+
+## Deploy and verify
+
+```bash
+npm run deploy:sepolia
+```
+
+The script prints the address and transaction hash and creates `deployment/sepolia-deployment.json` containing:
+
+- network and chain ID;
 - contract and deployer addresses;
 - deployment transaction hash and block number;
-- compiler, optimizer, and EVM settings;
-- deployment date, tool, and command; and
-- direct verified Etherscan URL.
+- UTC deployment time;
+- compiler, optimizer, and EVM settings; and
+- direct Etherscan URL.
 
-No contract has been deployed yet.
+After Etherscan indexes the transaction, set `FDEFLOW_CONTRACT_ADDRESS` in `.env` and run:
 
-## Contract interaction
+```bash
+npm run verify:sepolia
+npm run interact:sepolia
+```
 
-Interaction examples will be provided through Hardhat scripts. They will demonstrate project creation and funding, delivery submission, acceptance or rejection, mutually approved extensions, overdue disputes, arbiter resolution, and withdrawals from credited balances.
+To print a particular project record:
 
-## Security considerations
+```bash
+PROJECT_ID=1 npm run interact:sepolia
+```
 
-The implementation and tests will address at least:
+No Sepolia address is claimed in this README until a deployment and source verification have actually succeeded.
 
-- unauthorized role actions;
-- invalid or repeated state transitions;
-- reentrancy and duplicate withdrawal;
-- invalid or incorrectly rounded settlement shares;
-- deadline and timestamp boundary behaviour;
-- denial-of-service risks from direct Ether transfers; and
-- accidental exposure of sensitive information on-chain.
+## Main contract interface
 
-Slither findings will be interpreted manually, remediated where necessary, and retested. The project will not claim complete security.
+| Function | Authorized caller | Purpose |
+| --- | --- | --- |
+| `createProject(...)` | Client / project creator | Fund a new escrow and record scope, acceptance, roles, and deadlines. |
+| `submitDelivery(...)` | Provider | Record delivery and evidence hashes; supports one resubmission. |
+| `approveDelivery(projectId)` | Client | Resolve with 100% credited to the provider. |
+| `rejectDelivery(projectId, reasonHash)` | Client | Reject the first delivery and open a resubmission window. |
+| `proposeExtension(...)` | Client or provider | Propose a later active deadline. |
+| `approveExtension(projectId)` | Other commercial party | Apply the pending extension. |
+| `markDeliveryOverdue(projectId)` | Client | Record a missed delivery/resubmission deadline. |
+| `markReviewOverdue(projectId)` | Provider | Record a missed client review deadline. |
+| `openDispute(...)` | Context-dependent affected party | Submit a dispute evidence hash and enter arbitration. |
+| `resolveDispute(...)` | Arbiter | Allocate 0–10,000 basis points to the provider and the remainder to the client. |
+| `withdraw()` | Credited client/provider | Pull all caller credit using a reentrancy-protected transfer. |
+
+View functions expose project records, pending extensions, pending withdrawals, the next ID, and aggregate accounted balance.
 
 ## Known limitations
 
-- The contract cannot determine whether an AI workflow is technically good or commercially acceptable.
-- Evidence contents and human arbitration remain off-chain.
-- The initial version supports one escrow and one delivery milestone per project, using test ETH rather than tokens or NFTs; it does not include multi-milestone billing or appeals.
-- The system is an educational prototype and is not suitable for production or real funds.
+- The contract cannot evaluate AI workflow quality or determine responsibility automatically.
+- Evidence contents and arbitration remain off-chain.
+- Only one milestone and at most one resubmission are supported.
+- Role addresses cannot be rotated if a key is lost or compromised.
+- There is no appeal, emergency pause, upgrade path, token payment, or production front end.
+- Ether forced into the contract outside `createProject` is not attributed and cannot be recovered.
+- Public hashes may confirm guesses about known files, so sensitive or low-entropy content still needs careful off-chain handling.
 
-## Planned repository structure
+## Third-party code and AI assistance
 
-```text
-contracts/      Solidity contracts
-test/           Hardhat automated tests
-scripts/        Deployment and interaction scripts
-deployment/     Testnet deployment metadata
-audit/          Security-analysis output and interpreted findings
-docs/           Diagrams and supporting documentation
-```
+The contract imports OpenZeppelin Contracts 5.4.0 `ReentrancyGuard` and `Math`; these components were selected for reviewed reentrancy protection and full-precision multiplication/division. Hardhat, ethers, solidity-coverage, and Slither are development tools and are not application contracts.
 
-## Third-party libraries and assistance
-
-The project plans to use OpenZeppelin Contracts and Hardhat. Exact versions and reused functionality will be documented after installation. AI assistance used for proposal structure, documentation, and development support will be acknowledged in accordance with the course policy; the student remains responsible for understanding and explaining the submitted work.
+AI assistance was used for proposal/report structuring, implementation support, test design, and documentation review. The student remains responsible for verifying, understanding, demonstrating, and explaining every submitted artefact.
 
 ## License
 
-No license has been selected. All rights are reserved unless a license is added later.
+The application source is marked `UNLICENSED`. All rights are reserved unless the author later selects a license.
