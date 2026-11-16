@@ -166,7 +166,8 @@ The script prints the address and transaction hash and creates `deployment/sepol
 - contract and deployer addresses;
 - deployment transaction hash and block number;
 - UTC deployment time;
-- compiler, optimizer, and EVM settings; and
+- compiler, optimizer, and EVM settings;
+- source Git commit and deployed-bytecode hash; and
 - direct Etherscan URL.
 
 After Etherscan indexes the transaction, set `FDEFLOW_CONTRACT_ADDRESS` in `.env` and run:
@@ -175,6 +176,8 @@ After Etherscan indexes the transaction, set `FDEFLOW_CONTRACT_ADDRESS` in `.env
 npm run verify:sepolia
 npm run interact:sepolia
 ```
+
+After successful verification, the verification script marks `deployment/sepolia-deployment.json` as verified and records the verified URL and verification time.
 
 To print a particular project record:
 

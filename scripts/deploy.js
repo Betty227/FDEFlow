@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { execFileSync } = require("child_process");
 const hre = require("hardhat");
 
 async function main() {
@@ -17,6 +18,16 @@ async function main() {
   const receipt = await contract.deploymentTransaction().wait();
   const address = await contract.getAddress();
   const block = await hre.ethers.provider.getBlock(receipt.blockNumber);
+  const deployedBytecode = await hre.ethers.provider.getCode(address);
+  let sourceCommit = "unavailable";
+  try {
+    sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: path.join(__dirname, ".."),
+      encoding: "utf8",
+    }).trim();
+  } catch (_) {
+    // Deployment can still proceed outside a Git checkout.
+  }
 
   const record = {
     contract: "FDEFlowEscrow",
@@ -31,6 +42,8 @@ async function main() {
     optimizer: { enabled: true, runs: 200 },
     evmVersion: "paris",
     constructorArguments: [],
+    sourceCommit,
+    deployedBytecodeHash: hre.ethers.keccak256(deployedBytecode),
     verified: false,
     etherscanUrl:
       network.chainId === 11155111n ? `https://sepolia.etherscan.io/address/${address}` : null,
