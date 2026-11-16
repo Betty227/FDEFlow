@@ -4,6 +4,8 @@
 
 FDEFlow is a CSIT5760 individual project by **HU Wenqi**. It implements a role-controlled Solidity escrow for a single-milestone AI workflow engagement. A client deposits Sepolia test ETH, a provider records delivery and evidence hashes, and a nominated arbiter resolves disputes using any provider share from 0 to 10,000 basis points. Sensitive prompts, files, business data, and complete evidence remain off-chain.
 
+[![FDEFlow CI](https://github.com/Betty227/FDEFlow/actions/workflows/ci.yml/badge.svg)](https://github.com/Betty227/FDEFlow/actions/workflows/ci.yml)
+
 The student ID is intentionally omitted from this public repository. It is included in the course submission package and final report.
 
 > Educational prototype only. Do not use it with real funds or confidential information.
