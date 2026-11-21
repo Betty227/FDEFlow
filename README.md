@@ -69,6 +69,32 @@ See [`audit/SECURITY_REVIEW.md`](audit/SECURITY_REVIEW.md) for Slither findings,
 | EVM target | Paris |
 | Public network | Sepolia, chain ID 11155111 |
 
+## Live Sepolia deployment
+
+The current contract is deployed and source-verified on Sepolia:
+
+| Item | Public record |
+| --- | --- |
+| Contract | [`0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7`](https://sepolia.etherscan.io/address/0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7#code) |
+| Deployment transaction | [`0x4393f3ce...f46eb390`](https://sepolia.etherscan.io/tx/0x4393f3ce67d91470f4b88238621aaa399b1725409f9d82902050b4f8f46eb390) |
+| Deployer/client | [`0x1e0B9652...1f357845`](https://sepolia.etherscan.io/address/0x1e0B96525b19b4E0Ac6A480FA0080D971f357845) |
+| Block | `12182782` |
+| Source verification | Successful |
+
+An end-to-end Project 1 demonstration also ran on Sepolia. It created a `0.002 ETH` escrow, recorded delivery and rejection hashes, opened a provider dispute, resolved it at `6,000` basis points to the provider, and completed both pull-payment withdrawals. The final state is `Resolved`; `totalEscrowed` and `totalPendingWithdrawals` are both zero.
+
+| Demonstrated transition | Transaction |
+| --- | --- |
+| Create and fund | [`0xdf3f9736...521f87e`](https://sepolia.etherscan.io/tx/0xdf3f973659ca366ca752863302f6c85b927484c23d4330d66e90ed0a2521f87e) |
+| Provider submission | [`0x2364ac1b...d683f74`](https://sepolia.etherscan.io/tx/0x2364ac1bebedd1a778d4d0e2faab3ee64897d50e1f0e6457e41683365d683f74) |
+| Client rejection | [`0xd2dee22e...2eff4f`](https://sepolia.etherscan.io/tx/0xd2dee22ed5140dfa85b9b0cb8387d4cd69825461554dd32f2e4eeb7e732eff4f) |
+| Provider dispute | [`0xebe2c24b...8418f7`](https://sepolia.etherscan.io/tx/0xebe2c24ba600a7ed36d2f0e86d277b0bd62d67c20b4a61018e5221be068418f7) |
+| 60/40 arbitration | [`0xff5d1e06...0c335a`](https://sepolia.etherscan.io/tx/0xff5d1e06355371c52cf33f929a7fe5becae03ca108c8708971ce40f88d0c335a) |
+| Provider withdrawal | [`0x004b9af1...53a71`](https://sepolia.etherscan.io/tx/0x004b9af1567068439ed2956e132beec3308cfd83b46841280640ccdb45b53a71) |
+| Client withdrawal | [`0x8909da47...9e155`](https://sepolia.etherscan.io/tx/0x8909da47e6b551bd7e75dc4eb00ed62d0ecd4d376f29be50a0d40636a919e155) |
+
+Machine-readable evidence is retained in [`deployment/sepolia-deployment.json`](deployment/sepolia-deployment.json) and [`deployment/sepolia-demo.json`](deployment/sepolia-demo.json).
+
 Use an even-numbered Node.js LTS release supported by Hardhat (Node.js 22 LTS is recommended). Node.js 25 produces a Hardhat support warning and should not be used for the final reproducibility run.
 
 ## Repository structure
@@ -81,6 +107,7 @@ scripts/deploy.js                                deployment and metadata capture
 scripts/verify.js                                Etherscan verification
 scripts/interact.js                              deployed-state reader
 scripts/demo-local.js                            complete local happy-path demo
+scripts/demo-sepolia.js                          end-to-end public-testnet demonstration
 deployment/                                     generated public deployment records
 audit/                                          raw and interpreted security evidence
 ```
@@ -181,13 +208,19 @@ npm run interact:sepolia
 
 After successful verification, the verification script marks `deployment/sepolia-deployment.json` as verified and records the verified URL and verification time.
 
+To run the public-testnet dispute and partial-settlement demonstration against the configured deployment:
+
+```bash
+npm run demo:sepolia
+```
+
+The script records only public addresses and transactions in `deployment/sepolia-demo.json`. Temporary role keys are held in a Git-ignored local recovery file only while the run is active, then deleted after all residual test ETH is returned to the deployer.
+
 To print a particular project record:
 
 ```bash
 PROJECT_ID=1 npm run interact:sepolia
 ```
-
-No Sepolia address is claimed in this README until a deployment and source verification have actually succeeded.
 
 ## Main contract interface
 

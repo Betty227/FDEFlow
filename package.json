@@ -12,6 +12,7 @@
     "preflight:sepolia": "node scripts/preflight.js",
     "deploy:sepolia": "npm run preflight:sepolia && hardhat run scripts/deploy.js --network sepolia",
     "verify:sepolia": "npm run preflight:sepolia && hardhat run scripts/verify.js --network sepolia",
+    "demo:sepolia": "npm run preflight:sepolia && hardhat run scripts/demo-sepolia.js --network sepolia",
     "interact:sepolia": "npm run preflight:sepolia && hardhat run scripts/interact.js --network sepolia",
     "check": "npm run compile && npm test"
   },

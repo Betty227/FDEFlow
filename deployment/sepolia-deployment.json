@@ -1,0 +1,23 @@
+{
+  "contract": "FDEFlowEscrow",
+  "address": "0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7",
+  "network": "sepolia",
+  "chainId": "11155111",
+  "deployer": "0x1e0B96525b19b4E0Ac6A480FA0080D971f357845",
+  "deploymentTransactionHash": "0x4393f3ce67d91470f4b88238621aaa399b1725409f9d82902050b4f8f46eb390",
+  "blockNumber": 12182782,
+  "deployedAtUtc": "2026-11-21T15:45:48.000Z",
+  "compiler": "0.8.24",
+  "optimizer": {
+    "enabled": true,
+    "runs": 200
+  },
+  "evmVersion": "paris",
+  "constructorArguments": [],
+  "sourceCommit": "ba84bf88aeab79854733c7ab4118521acdf1456c",
+  "deployedBytecodeHash": "0xc6aeaa81ea83123eaad9749e863b39549d64f3a6cd8186915dc81df02ef85b86",
+  "verified": true,
+  "etherscanUrl": "https://sepolia.etherscan.io/address/0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7",
+  "verifiedAtUtc": "2026-11-21T15:46:17.680Z",
+  "verifiedUrl": "https://sepolia.etherscan.io/address/0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7#code"
+}

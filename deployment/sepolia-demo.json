@@ -1,0 +1,63 @@
+{
+  "network": "sepolia",
+  "chainId": "11155111",
+  "contract": "0x83d919208D5e4711Bb72Fd643c4EfF5becCf3Fa7",
+  "projectId": "1",
+  "roles": {
+    "client": "0x1e0B96525b19b4E0Ac6A480FA0080D971f357845",
+    "provider": "0x9Cb15AcF5e3c1863B85596dac853356ba2b02aFe",
+    "arbiter": "0x59f3D7A0b30d650aA8Ae96907033959122869891"
+  },
+  "escrowAmountWei": "2000000000000000",
+  "providerShareBps": 6000,
+  "providerCreditWei": "1200000000000000",
+  "clientCreditWei": "800000000000000",
+  "finalState": 7,
+  "transactions": {
+    "fundProvider": {
+      "hash": "0x2e3b2981c4bc97cb830728677d683b75056da6e1d80180dfec46dd9ee1192e56",
+      "blockNumber": 12182793
+    },
+    "fundArbiter": {
+      "hash": "0x272cb6106a018782f60cf42540782d1f3bb6c961c60d9d7c0e61669f12a2c3ad",
+      "blockNumber": 12182794
+    },
+    "createProject": {
+      "hash": "0xdf3f973659ca366ca752863302f6c85b927484c23d4330d66e90ed0a2521f87e",
+      "blockNumber": 12182795
+    },
+    "submitDelivery": {
+      "hash": "0x2364ac1bebedd1a778d4d0e2faab3ee64897d50e1f0e6457e41683365d683f74",
+      "blockNumber": 12182797
+    },
+    "rejectDelivery": {
+      "hash": "0xd2dee22ed5140dfa85b9b0cb8387d4cd69825461554dd32f2e4eeb7e732eff4f",
+      "blockNumber": 12182798
+    },
+    "openDispute": {
+      "hash": "0xebe2c24ba600a7ed36d2f0e86d277b0bd62d67c20b4a61018e5221be068418f7",
+      "blockNumber": 12182799
+    },
+    "resolveDispute": {
+      "hash": "0xff5d1e06355371c52cf33f929a7fe5becae03ca108c8708971ce40f88d0c335a",
+      "blockNumber": 12182800
+    },
+    "providerWithdrawal": {
+      "hash": "0x004b9af1567068439ed2956e132beec3308cfd83b46841280640ccdb45b53a71",
+      "blockNumber": 12182801
+    },
+    "clientWithdrawal": {
+      "hash": "0x8909da47e6b551bd7e75dc4eb00ed62d0ecd4d376f29be50a0d40636a919e155",
+      "blockNumber": 12182802
+    },
+    "providerSweep": {
+      "hash": "0xcf9556fe216be07ed9d9201109e3c56455a3f805fff8187cb21b91067fe7d41a",
+      "blockNumber": 12182803
+    },
+    "arbiterSweep": {
+      "hash": "0x9f4a0f0feb86d00b9efd145ca9b1be3b5dc67a5da08067b06c1eab6f8d54e181",
+      "blockNumber": 12182805
+    }
+  },
+  "completedAtUtc": "2026-11-21T15:50:49.782Z"
+}
