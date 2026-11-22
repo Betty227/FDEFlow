@@ -159,7 +159,7 @@ npm run security
 npm audit --omit=dev
 ```
 
-Slither output is saved in `audit/slither-output.txt`. Tool output must be interpreted; a raw report alone is not a security conclusion. The current application findings are intentional timestamp comparisons and the controlled low-level call used by the pull-payment withdrawal.
+The submitted raw Slither run is retained in `audit/slither-output.txt`. Tool output must be interpreted; a raw report alone is not a security conclusion. The current application findings are intentional timestamp comparisons and the controlled low-level call used by the pull-payment withdrawal. Slither may return a non-zero status when it reports these reviewed findings.
 
 ## Configure Sepolia
 
@@ -204,9 +204,10 @@ After Etherscan indexes the transaction, set `FDEFLOW_CONTRACT_ADDRESS` in `.env
 ```bash
 npm run verify:sepolia
 npm run interact:sepolia
+npm run check:bytecode:sepolia
 ```
 
-After successful verification, the verification script marks `deployment/sepolia-deployment.json` as verified and records the verified URL and verification time.
+After successful verification, the verification script marks `deployment/sepolia-deployment.json` as verified and records the verified URL and verification time. The bytecode check independently compares the recorded hash with both the locally compiled runtime bytecode and the runtime bytecode returned by Sepolia.
 
 To run the public-testnet dispute and partial-settlement demonstration against the configured deployment:
 
